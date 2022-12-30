@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const Yup = require("yup");
 const validator = require("fastest-validator");
+const User=require('../models/User')
 const v = new validator();
 
 const router = new Router();
@@ -45,20 +46,6 @@ const schema = {
 };
 
 
-// const schema = Yup.object().shape({
-//   fullname: Yup.string()
-//     .required("name is required")
-//     .min(4, "It should be 4 character")
-//     .max(255, "It should be 4 character"),
-//   email: Yup.string().email("email is required").required("email is required"),
-//   password: Yup.string()
-//     .min(4, "It should be 4 character")
-//     .max(255, "It should be 4 character")
-//     .required("password is required"),
-//   confirmPassword: Yup.string()
-//     .required("confirmPassword is required")
-//     .oneOf([Yup.ref("password"), null]),
-// });
 
 //@desc login page
 router.get("/login", (req, res) => {
@@ -71,33 +58,24 @@ router.get("/register", (req, res) => {
 });
 
 //@desc register handle
-router.post("/register", (req, res) => {
-  // --------------------------Yup example
-  // schema
-  //   .validate(req.body)
-  //   .then((result) => {
-  //     res.redirect("/users/login");
-  //   })
-  //   .catch((err) => {
-  //     console.log("err", err.errors);
-  //     res.render("register", {
-  //       pageTitle: "Register new user",
-  //       path: "/register",
-  //       errors: err.errors,
-  //     });
-  //   });
+router.post("/register", async(req, res) => {
+  
     //------------------------------fastest validator example
     const validate=v.validate(req.body,schema);
     const errArr=[];
     if(validate===true){
+      console.log('not eqal2345')
+
       const {name,email,password,confirmPassword}=req.body;
       if(password!==confirmPassword){
-        errArr.push({messages:'passwords are not equal'})
+        errArr.push({message:"Passwords do not match "});
+        console.log(errArr)
         return  res.render("register", {
           pageTitle: "Register new user",
           path: "/register",
           errors:errArr,
         });
+        
       }
       res.redirect("/users/login");
     }else{

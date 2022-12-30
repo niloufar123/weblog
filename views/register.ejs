@@ -2,39 +2,42 @@
     <h1 class="h3 mb-3 font-weight-normal">Please Register</h1>
     <%- include('./includes/messages') -%>
 
-    <label for="inputFullname" class="sr-only">Name LastName</label>
+    <label for="name" class="sr-only">Name LastName</label>
     <input
-      id="inputFullname"
+      id="name"
       name="name"
       class="form-control mb-2"
-      placeholder="Email address"
+      placeholder="Full name"
+      type="text"
+
       required
       autofocus
     />
-    <label for="inputEmail" class="sr-only">Email address</label>
+    <label for="email" class="sr-only">Email address</label>
     <input
       type="email"
       name="email"
-      id="inputEmail"
+      id="email"
       class="form-control"
       placeholder="Email address"
+      autocomplete="false"
       required
       autofocus
     />
-    <label for="inputPassword" class="sr-only">Password</label>
+    <label for="password" class="sr-only">Password</label>
     <input
       type="password"
-      id="inputPassword"
+      id="password"
       class="form-control"
       placeholder="Password"
       required
       name="password"
     />
-    <label for="inputConfirmPassword" class="sr-only">Repeat Password</label>
+    <label for="confirmPassword" class="sr-only">Repeat Password</label>
     <input
       type="password"
-      id="inputConfirmPassword"
-      name="ConfirmPassword"
+      id="confirmPassword"
+      name="confirmPassword"
       class="form-control mb-2"
       placeholder="Repeat Password"
       required
@@ -45,6 +48,5 @@
     <button class="btn btn-lg btn-primary btn-block" type="submit">
       Sign in
     </button>
-    <p class="mt-5 mb-3 text-muted">&copy; 2021-2022</p>
   </form>
   
