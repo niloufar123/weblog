@@ -6,16 +6,22 @@ const express = require("express");
 const layouts = require("express-ejs-layouts");
 const dotEnv = require("dotenv");
 const morgan = require("morgan");
-
+const passport=require("passport")
 const connectDB = require("./config/db");
 const blogRoutes = require("./routes/blog");
 const dashRoutes = require("./routes/dashboard");
+
+const flash=require("connect-flash");
+const session=require("express-session");
 
 //load config
 dotEnv.config({ path: "./config/config.env" });
 
 //data Base connection
 connectDB();
+
+//passport configuration
+require("./config/passport")
 
 const app = express();
 //loging
@@ -31,6 +37,21 @@ app.set("layout", "./layouts/mainLayout");
 
 //body parser
 app.use(express.urlencoded({ extended: false }));
+
+//sessions
+app.use(session({
+  secret:"secret",
+  cookie:{maxAge:60000},
+  resave:false,
+  saveUninitialized:false
+}))
+
+//passport
+app.use(passport.initialize());
+app.use(passport.session())
+
+//Flash
+app.use(flash())//req.flash
 
 //static folder
 app.use(express.static(path.join(__dirname, "public")));

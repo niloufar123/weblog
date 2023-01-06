@@ -3,7 +3,7 @@ const Yup = require("yup");
  
 
 exports. schema = Yup.object().shape({
-    name: Yup.string()
+  fullname: Yup.string()
       .required("name is required")
       .min(3, "It should be 3 character")
       .max(255, "It should be 3 character"),

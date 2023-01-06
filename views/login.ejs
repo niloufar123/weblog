@@ -1,8 +1,10 @@
-<form class="form-signin" action="/users/register" method="POST">
+<form class="form-signin" action="/users/login" method="POST">
   <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+  <%- include("./includes/loginMessages.ejs") %>
   <label for="inputEmail" class="sr-only">Email address</label>
   <input
     type="email"
+    name="email"
     id="inputEmail"
     class="form-control"
     placeholder="Email address"
@@ -12,6 +14,7 @@
   <label for="inputPassword" class="sr-only">Password</label>
   <input
     type="password"
+    name="password"
     id="inputPassword"
     class="form-control"
     placeholder="Password"
