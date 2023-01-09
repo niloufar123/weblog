@@ -1,7 +1,8 @@
 const { Router } = require("express");
 const yup=require('yup')
 
-const userController=require('../controllers/userController')
+const userController=require('../controllers/userController');
+const { authenticated } = require("../middlewares/auth");
 
 
 const router = new Router();
@@ -14,6 +15,9 @@ router.get("/login",userController.login);
 //  @desc   Login handle
 //  @route  POST /users/login
 router.post("/login",userController.handleLogin);
+
+//@desc Logout
+router.get("/logout",authenticated,userController.logout)
 
 //  @desc   Register Page
 //  @route  GET /users/register

@@ -19,6 +19,15 @@ exports.handleLogin=(req,res,next)=>{
   })(req,res,next);
 }
 
+exports.logout=(req,res)=>{
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    req.flash("success_msg","You have successfully logged out!")
+    res.redirect("/users/login")
+  });
+ 
+}
+
 exports.register = (req, res) => {
   res.render("register", {
     pageTitle: "Add user",

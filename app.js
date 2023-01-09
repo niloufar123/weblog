@@ -14,6 +14,7 @@ const dashRoutes = require("./routes/dashboard");
 const flash=require("connect-flash");
 const session=require("express-session");
 
+
 //load config
 dotEnv.config({ path: "./config/config.env" });
 
@@ -44,6 +45,7 @@ app.use(session({
   cookie:{maxAge:60000},
   resave:false,
   saveUninitialized:false
+
 }))
 
 //passport
