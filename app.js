@@ -10,8 +10,10 @@ const passport=require("passport")
 const connectDB = require("./config/db");
 const blogRoutes = require("./routes/blog");
 const dashRoutes = require("./routes/dashboard");
-const mongoos=require("mongoose")
-
+const mongoos=require("mongoose");
+const debug=require("debug")("myWeblog")
+const winston=require("./config/winston")
+const bodyParser=require("body-parser")
 const flash=require("connect-flash");
 const session=require("express-session");
 const MongoStore=require("connect-mongo")
@@ -29,7 +31,8 @@ require("./config/passport")
 const app = express();
 //loging
 if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
+  debug("Morgan Enabled")
+  app.use(morgan("combined",{stream:winston.stream}));
 }
 
 //view Engine
@@ -39,7 +42,8 @@ app.set("views", "views");
 app.set("layout", "./layouts/mainLayout");
 
 //body parser
-app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
 
 //sessions
 app.use(session({
@@ -53,10 +57,6 @@ app.use(session({
 
 }))
 
-// app.use(session({
-//   secret: 'foo',
-//   store: MongoStore.create(options)
-// }));
 
 
 //passport
