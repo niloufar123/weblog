@@ -21,7 +21,37 @@
     <link rel="stylesheet" href="/css/font-awesome.css" />
 
   </head>
+ 
+  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="0 navbar-brand col-sm-3 col-md-2 mr-0" href="#">Wellcome  <%= fullname %></a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+      <li class="nav-item text-nowrap">
+        <a class="nav-link" href="/users/logout">logout</a>
+      </li>
+    </ul>
+  </nav>
     <body class="rtl">
+        
+
+
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- <div class="col-md-9">te9</div> -->
+
+      <%- include('../private/dashSidebar.ejs') %> 
+      <!-- <div class="col-md-9">tes9</div> -->
+
+       <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
         <%- body %>
+      </main>
+    
+  </div>
+ 
+</div>
+<script src="/js/jquery.slim.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+
     </body>
 </html>

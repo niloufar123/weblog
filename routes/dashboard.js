@@ -1,19 +1,21 @@
 const { Router } = require("express");
 const { authenticated } = require("../middlewares/auth");
+const admincontroller=require("../controllers/adminController")
 
 const router = new Router();
 
 //@desc dashboard index
 //@rout get /dashboard
-router.get("/", authenticated, (req, res) => {
-  res.render("dashboard", {
-    pageTitle: "dashboard",
-    path: "/dashboard",
-    layout: "./layouts/dashLayout",
-    fullname:req.user.fullname
-  });
-});
+router.get("/", authenticated, admincontroller.getDashboard);
 
 
+
+//@desc addpost
+//@rout get /dashboard/add-post
+router.get("/add-post", authenticated, admincontroller.getAddpost);
+
+//@desc handle post addpost
+//@rout POST /dashboard/add-post
+router.post("/add-post",  admincontroller.createPost);
 
 module.exports = router;
