@@ -47,11 +47,10 @@ app.use(bodyParser.json())
 
 //sessions
 app.use(session({
-  secret:"secret",
-  cookie:{maxAge:60000},
+  secret:process.env.SESSION_SECRET,
   resave:false,
   saveUninitialized:false,
-  secret: 'foo',
+  unset: 'destroy',
   store: MongoStore.create(
      mongoos.connection )
 
@@ -77,9 +76,7 @@ app.use("/", blogRoutes);
 app.use("/dashboard", dashRoutes);
 app.use("/users", require("./routes/users"));
 //404 page
-app.use((req, res) => {
-  res.render("404", { pageTitle: "404 page not found", path: "/404" });
-});
+app.use(require('./controllers/errorController').get404);
 
 const PORT = process.env.PORT || 5000;
 

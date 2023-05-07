@@ -52,11 +52,12 @@ exports.rememberMe = (req, res) => {
   res.redirect("/dashboard");
 };
 exports.logout = (req, res) => {
+  req.session=null
   req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    req.flash("success_msg", "You have successfully logged out!");
+    // if (err) {
+    //   return next(err);
+    // }
+    // req.flash("success_msg", "You have successfully logged out!");because session is null
     res.redirect("/users/login");
   });
 };

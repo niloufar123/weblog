@@ -1,11 +1,12 @@
 const mongoos=require("mongoose");
+const {schema}=require("./secure/postValidation")
 
 const blogSchema=new mongoos.Schema({
     title:{
         type:String,
         require:true,
-        minlength:4,
-        maxlength:255,
+        minlength:5,
+        maxlength:100,
         trim:true
     },
     body:{
@@ -26,4 +27,9 @@ const blogSchema=new mongoos.Schema({
         default:Date.now
     }
 })
+
+blogSchema.statics.postValidation=function (body) {
+    console.log('schema blody: ',body)
+    return schema.validate(body,{abortEarly:false})
+}
 module.exports=mongoos.model("Blog" , blogSchema)
