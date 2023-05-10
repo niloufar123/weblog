@@ -14,6 +14,10 @@ router.get("/", authenticated, admincontroller.getDashboard);
 //@rout get /dashboard/add-post
 router.get("/add-post", authenticated, admincontroller.getAddpost);
 
+//@desc editpost
+//@rout get /dashboard/edit-post
+router.get("/edit-post/:id", authenticated, admincontroller.getEditpost);
+
 //@desc handle post addpost
 //@rout POST /dashboard/add-post
 router.post("/add-post",  admincontroller.createPost);

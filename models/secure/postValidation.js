@@ -10,3 +10,5 @@ exports.schema=Yup.object().shape({
     status:Yup.mixed().oneOf(["public","private"],"please pike up one of the statuses")
 
 })
+
+
