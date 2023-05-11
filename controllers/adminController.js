@@ -45,7 +45,7 @@ exports.getEditpost =async (req, res) => {
     if(!post){
         return res.redirect("errors/404")
     }
-    if(post.user.toHexString()!==req.user.id){
+    if(post.user.toString()!==req.user.id){
         return res.redirect("/dashboard")
     }
     else{
@@ -59,6 +59,62 @@ exports.getEditpost =async (req, res) => {
         })
     }
     
+}
+exports.Deletepost=async (req,res)=>{
+    try{
+
+        const result=await Blog.findByIdAndRemove(req.params.id);//delete doen't show item deleted
+        console.log(result)
+        res.redirect("/dashboard")
+    }catch(err){
+        res.render("errors/500s")
+    }
+}
+exports.editPost=async(req,res)=>{
+    let errors = [];
+    const post=await Blog.findOne({_id:req.params.id})
+            const {title,status,body}=req.body;
+    try {
+        await Blog.postValidation(req.body);
+        if(!post){
+            return res.redirect("errors/404")
+        }else
+            if(post.user.toString()!=req.user._id){
+                console.log('posd11111', req.body)
+
+                return res.redirect("/dashboard")
+
+            }
+        else{
+            console.log('posdt', req.body)
+
+            const {title,status,body}=req.body;
+            post.title=title;
+            post.body=body;
+            post.status=status;
+            await post.save();
+            res.redirect("/dashboard")
+
+        }
+        
+    } catch (err) {
+        err.inner.forEach((e) => {
+            errors.push({
+                name: e.path,
+                message: e.message,
+            });
+        })
+
+        res.render("private/editPost", {
+            pageTitle: "edit post",
+            path: "/dashboard/edit-post",
+            layout: "./layouts/dashLayout",
+            fullname: 'req.user.fullname',
+            errors: errors,
+            post
+
+        })
+    }
 }
 
 exports.createPost = async (req, res) => {

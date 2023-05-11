@@ -23,18 +23,17 @@
                             <%= item.title %>
                         </td>
                         <td>
-                            <%= formatDate(item.createdAt) %>
-                        </td>
-                        <td>
                             <span type="button" class="btn btn-sm <%= item.status === "public" ? 'btn-success' : 'btn-secondary'
                             %>">
                             <%= item.status %>
                         </span>
                     </td>
                     <td>
+                        <%= formatDate(item.createdAt) %>
+                    </td>
+                    <td>
                         <a href="/dashboard/edit-post/<%= item._id %>" class="btn btn-sm btn-primary" >Edit</a>
-                        <a href="/dashboard/delete -post/<%= item._id %>" class="btn btn-sm btn-danger" >Delete</a>
-                   
+                        <a href="/dashboard/delete-post/<%= item._id %>" class="btn btn-sm btn-danger" >Delete</a>
                     </td>
                     </tr>
                 </tbody>

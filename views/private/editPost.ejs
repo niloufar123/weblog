@@ -10,7 +10,9 @@
     <label for="status" class="mb-1">Status</label>
     <select id="inputState" class="form-control" name="status">
       <option value="<%= post.status %>" selected=""><%= post.status %></option>
-      <option value="<%= post.status== "public" ? "private" : "public" %>"><%= post.status== "public" ? "private" : "public" %></option>
+      <option value="<%= post.status== "public" ? "private" : "public" %>">
+        <%= post.status== "public" ? "private" : "public" %>
+      </option>
     </select>
   </div>
   <div class="input-group mb-3">

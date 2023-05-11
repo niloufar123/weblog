@@ -18,9 +18,18 @@ router.get("/add-post", authenticated, admincontroller.getAddpost);
 //@rout get /dashboard/edit-post
 router.get("/edit-post/:id", authenticated, admincontroller.getEditpost);
 
+//@desc deletepost
+//@rout get /dashboard/delete-post
+router.get("/delete-post/:id", authenticated, admincontroller.Deletepost);
+
+//@desc handle post editpost
+//@rout POST /dashboard/edit-post
+router.post("/edit-post/:id", authenticated, admincontroller.editPost);
+
+
 //@desc handle post addpost
 //@rout POST /dashboard/add-post
-router.post("/add-post",  admincontroller.createPost);
+router.post("/add-post",authenticated,  admincontroller.createPost);
 
 //@desc handle post Image upload
 //@rout POST /dashboard/image-upload
