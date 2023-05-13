@@ -8,16 +8,33 @@ const sharp = require("sharp")
 const uuid = require("uuid").v4;
 
 exports.getDashboard = async (req, res) => {
-    console.log('da', req.body, req.user, req.body.id)
+   
+    const page = +req.query.page || 1;
+    const postPerPage = 2;
+
+    console.log('page===>',page,typeof(page))
+
     try {
+        const numberOfPosts=await Blog.find({user:req.user._id}).countDocuments();
         const blogs = await Blog.find({ user: req.user.id })
+        .skip((page-1)*postPerPage)
+        .limit(postPerPage)
         res.render("private/blogs", {
             pageTitle: "admin ~ dashboard",
             path: "/dashboard",
             layout: "./layouts/dashLayout",
             fullname: req.user.fullname,
             blogs,
-            formatDate
+            formatDate,
+
+
+            currentPage: page,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            hasNextPage: postPerPage * page < numberOfPosts,
+            hasPreviousPage: page > 1,
+            lastPage: Math.ceil(numberOfPosts / postPerPage),
+
         })
     } catch (error) {
         console.log(error)
