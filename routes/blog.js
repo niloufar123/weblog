@@ -13,6 +13,6 @@ router.get("/",blogController.getIndex);
 
 //@desc editpost
 //@rout get /post/id
-router.get("/post/:id", blogController.post);
+router.get("/post/:id", blogController.getSinglePost);
 
 module.exports = router;

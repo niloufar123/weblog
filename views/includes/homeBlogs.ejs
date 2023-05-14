@@ -26,7 +26,7 @@
                             </h2>
                             <p class="card-text">
                                 <!-- insted of = we use - that can remove tags and view raw body -->
-                                <%- item.body %>
+                                <%- trunCate(item.body , 400)   %>
                             </p>
                             <a class="btn btn-primary" href="/post/<%= item._id %>">Read more →</a>
                         </div>

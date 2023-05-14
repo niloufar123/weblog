@@ -1,42 +1,44 @@
-const Blog=require("../models/Blog");
-const {formatDate}=require('../utils/formatDate');
+const Blog = require("../models/Blog");
+const { formatDate } = require('../utils/formatDate');
+const { trunCate } = require('../utils/helpers')
 
 
-exports.getIndex=async(req,res)=>{
-    try{
-        const posts=await Blog.find({status:"public"}).sort({createdAt:"desc"});
+exports.getIndex = async (req, res) => {
+    try {
+        const posts = await Blog.find({ status: "public" }).sort({ createdAt: "desc" });
 
-        res.render("blog",{
-            pageTitle:" weblog",
-            path:"/",
+        res.render("blog", {
+            pageTitle: " weblog",
+            path: "/",
             posts,
-            formatDate
+            formatDate,
+            trunCate
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.render("errors/500");
     }
 }
 
-exports.post=async(req,res)=>{
-    const post=await Blog.findOne({
-        _id:req.params.id 
-    })
+exports.getSinglePost = async (req, res) => {
+    try {
+        const post = await Blog.findOne({ _id: req.params.id }).populate("user")
 
-    if(!post){
-        return res.redirect("errors/404")
+        if (!post) return res.redirect("errors/404")
+        
+            res.render("private/post", {
+                pageTitle: post.title,
+                path: "/dashboard/post",
+              
+                post,
+                formatDate,
+                
+
+            })
+        
+    } catch (err) {
+        console.log(err)
+        res.render("errors/500");
     }
-    
-    else{
-        res.render("private/post", {
-            pageTitle: "post detail",
-            path: "/dashboard/edit-post",
-            layout: "./layouts/dashLayout",
-            fullname: req.user.fullname,
-            post,
-            formatDate
-    
-        })
-    }
-    
+
 }
