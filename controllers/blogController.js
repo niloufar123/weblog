@@ -7,7 +7,7 @@ exports.getIndex = async (req, res) => {
     const page = +req.query.page || 1;
     const postPerPage = 5;
     try {
-        const numberOfPosts = await Blog.find({ user: req.user._id }).countDocuments();
+        const numberOfPosts = await Blog.find({ status: "public" }).countDocuments();
 
         const posts = await Blog.find({ status: "public" })
             .sort({ createdAt: "desc" })

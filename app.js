@@ -12,6 +12,7 @@ const blogRoutes = require("./routes/blog");
 const dashRoutes = require("./routes/dashboard");
 const mongoos=require("mongoose");
 const debug=require("debug")("myWeblog")
+const fileUpload=require("express-fileupload")
 const winston=require("./config/winston")
 const bodyParser=require("body-parser")
 const flash=require("connect-flash");
@@ -42,8 +43,13 @@ app.set("views", "views");
 app.set("layout", "./layouts/mainLayout");
 
 //body parser
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json())
+
+
+//file Upload middleware
+app.use(fileUpload());
+
 
 //sessions
 app.use(session({

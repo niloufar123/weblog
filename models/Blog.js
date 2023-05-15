@@ -18,6 +18,12 @@ const blogSchema=new mongoos.Schema({
         default:"public",
         enum:["public","private"]
     },
+    thumbnail:{
+        type:String,
+        require:true,
+        
+
+    },
     user:{
         type:mongoos.Schema.Types.ObjectId,
         ref:"User"

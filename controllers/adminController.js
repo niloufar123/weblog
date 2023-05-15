@@ -1,24 +1,28 @@
 const multer = require("multer");
-const {  fileFilter } = require('../utils/multer')
+const { fileFilter } = require('../utils/multer')
 const Blog = require("../models/Blog");
 const { formatDate } = require("../utils/formatDate");
+const appRoot = require("app-root-path")
+const shortId = require("shortid");
+const fs = require('fs')
 
 const { get500 } = require('./errorController')
-const sharp = require("sharp")
+const sharp = require("sharp");
+const RootPath = require("app-root-path");
 const uuid = require("uuid").v4;
 
 exports.getDashboard = async (req, res) => {
-   
+
     const page = +req.query.page || 1;
     const postPerPage = 2;
 
-    console.log('page===>',page,typeof(page))
+    console.log('page===>', page, typeof (page))
 
     try {
-        const numberOfPosts=await Blog.find({user:req.user._id}).countDocuments();
+        const numberOfPosts = await Blog.find({ user: req.user._id }).countDocuments();
         const blogs = await Blog.find({ user: req.user.id })
-        .skip((page-1)*postPerPage)
-        .limit(postPerPage)
+            .skip((page - 1) * postPerPage)
+            .limit(postPerPage)
         res.render("private/blogs", {
             pageTitle: "admin ~ dashboard",
             path: "/dashboard",
@@ -54,66 +58,93 @@ exports.getAddpost = (req, res) => {
 
     })
 }
-exports.getEditpost =async (req, res) => {
-    const post=await Blog.findOne({
-        _id:req.params.id 
+exports.getEditpost = async (req, res) => {
+    const post = await Blog.findOne({
+        _id: req.params.id
     })
 
-    if(!post){
+    if (!post) {
         return res.redirect("errors/404")
     }
-    if(post.user.toString()!==req.user.id){
+    if (post.user.toString() !== req.user.id) {
         return res.redirect("/dashboard")
     }
-    else{
+    else {
         res.render("private/editPost", {
             pageTitle: "Edit post",
             path: "/dashboard/edit-post",
             layout: "./layouts/dashLayout",
             fullname: req.user.fullname,
             post
-    
+
         })
     }
-    
-}
-exports.Deletepost=async (req,res)=>{
-    try{
 
-        const result=await Blog.findByIdAndRemove(req.params.id);//delete doen't show item deleted
+}
+exports.Deletepost = async (req, res) => {
+    try {
+
+        const result = await Blog.findByIdAndRemove(req.params.id);//delete doen't show item deleted
         console.log(result)
         res.redirect("/dashboard")
-    }catch(err){
+    } catch (err) {
         res.render("errors/500s")
     }
 }
-exports.editPost=async(req,res)=>{
+exports.editPost = async (req, res) => {
     let errors = [];
-    const post=await Blog.findOne({_id:req.params.id})
-            const {title,status,body}=req.body;
+
+
+    const thumbnail = req.files ? req.files.thumbnail : {}
+    const fileName = `${shortId.generate()}_${thumbnail.name}`
+    const uploadPath = `${appRoot}/public/uploads/thumbnails/${fileName}`
+
+
+
+    const post = await Blog.findOne({ _id: req.params.id })
+    const { title, status, body } = req.body;
     try {
-        await Blog.postValidation(req.body);
-        if(!post){
+        if (thumbnail.name) await Blog.postValidation({ ...req.body, thumbnail });
+        else await Blog.postValidation({ ...req.body, thumbnail: { name: 'placeholder', size: 0, mimetype: 'image/jpeg' } });
+
+
+
+
+        if (!post) {
             return res.redirect("errors/404")
-        }else
-            if(post.user.toString()!=req.user._id){
+        } else
+            if (post.user.toString() != req.user._id) {
                 console.log('posd11111', req.body)
 
                 return res.redirect("/dashboard")
 
             }
-        else{
-            console.log('posdt', req.body)
+            else {
+                if (thumbnail.name) {
+                    fs.unlink(`${RootPath}/public/uploads/thumbnails/${post.thumbnail}`, async (err) => {
+                        if (err) console.log(err)
+                        else {
+                            await sharp(thumbnail.data)
+                                .jpeg({ quality: 60 })
+                                .toFile(uploadPath)
+                                .catch(err => console.log(err))
+                        }
+                    })
+                }
 
-            const {title,status,body}=req.body;
-            post.title=title;
-            post.body=body;
-            post.status=status;
-            await post.save();
-            res.redirect("/dashboard")
 
-        }
-        
+
+
+                const { title, status, body } = req.body;
+                post.title = title;
+                post.body = body;
+                post.status = status;
+                post.thumbnail = thumbnail.name? fileName : post.thumbnail;
+                await post.save();
+                res.redirect("/dashboard")
+
+            }
+
     } catch (err) {
         err.inner.forEach((e) => {
             errors.push({
@@ -136,9 +167,21 @@ exports.editPost=async(req,res)=>{
 
 exports.createPost = async (req, res) => {
     let errors = [];
+    const thumbnail = req.files ? req.files.thumbnail : {}
+    const fileName = `${shortId.generate()}_${thumbnail.name}`
+    const uploadPath = `${appRoot}/public/uploads/thumbnails/${fileName}`
+
+    console.log(thumbnail)
     try {
+        req.body = { ...req.body, thumbnail }
         await Blog.postValidation(req.body);
-        await Blog.create({ ...req.body, user: req.user.id })
+        await sharp(thumbnail.data)
+            .jpeg({ quality: 60 })
+            .toFile(uploadPath)
+            .catch(err => console.log(err))
+
+        await Blog.create({ ...req.body, user: req.user.id, thumbnail: fileName })
+
         console.log('post body', req.body)
         res.redirect("/dashboard")
     } catch (err) {
@@ -181,8 +224,8 @@ exports.uploadImage = (req, res) => {
         if (err) {
             if (err.code == "LIMIT_FILE_SIZE") {
                 return res
-                .status(400)
-                .send("file value should be lower than 4MG")
+                    .status(400)
+                    .send("file value should be lower than 4MG")
             }
             res.status(400).send(err);
         } else {
