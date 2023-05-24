@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
+const { sendEmail } = require("../utils/mailer");
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 
@@ -96,10 +97,13 @@ exports.createUser = async (req, res) => {
       email,
       password,
     });
+    console.log('email',email)
+    sendEmail(email,fullname,'Wellcom','We are delighted to have you as a bloger')
 
     req.flash("success_msg", "Registration was successful");
     res.redirect("/users/login");
   } catch (err) {
+    console.log('errr---> ',err.inner[0].message)
     err.inner.forEach((e) => {
       errors.push({
         name: e.path,
