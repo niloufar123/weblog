@@ -27,4 +27,15 @@ router.get("/register",userController.register);
 //  @route  POST /users/register
 router.post("/register",userController.createUser);
 
+//  @desc   Register Handle   
+//  @route  POST /users/register
+router.get("/forget-password",userController.forgetPassword);
+
+//  @desc   handleForgetPassword
+//  @route  POST /users/forget-password
+router.post("/forget-password",userController.handleForgetPassword);
+
+
+
+
 module.exports = router;
