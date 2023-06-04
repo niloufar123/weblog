@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
+const { sendEmail } = require("../utils/mailer");
+const jwt=require("jsonwebtoken")
+
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 
@@ -96,10 +99,13 @@ exports.createUser = async (req, res) => {
       email,
       password,
     });
+    console.log('email',email)
+    sendEmail(email,fullname,'Wellcom','We are delighted to have you as a bloger')
 
     req.flash("success_msg", "Registration was successful");
     res.redirect("/users/login");
   } catch (err) {
+    console.log('errr---> ',err.inner[0].message)
     err.inner.forEach((e) => {
       errors.push({
         name: e.path,
@@ -113,3 +119,42 @@ exports.createUser = async (req, res) => {
     });
   }
 };
+exports.forgetPassword = async (req, res) => {
+  res.render("forgetPass",{
+    pageTitle:'forget password',
+    path:"/login",
+    message:req.flash("success-msg"),
+    error:req.flash("error")
+  })
+}
+
+exports.handleForgetPassword = async (req, res) => {
+  const {email}=req.body;
+  const user=await User.findOne({email:email})
+
+  if(!user){
+    req.flash("error","we don't have this email in our database")
+    return  res.render("forgetPass",{
+      pageTitle:'forget password',
+      path:"/login",
+      message:req.flash("success-msg"),
+      error:req.flash("error")
+    })
+  }
+  const token=jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"1h"});
+  const resetLink=`http://localhost:3000/user/reset-password/${token}`
+  // sendEmail(user.email,user.fullname,
+  //   'forget password',`for change your password click on this link
+  // <a href="${resetLink}">reset password</a>
+  // `)
+  sendEmail(user.email,user.fullname,'forget password','We are delighted to have you as a bloger')
+
+  req.flash("success-msg", " forget pass email has been sent")
+
+    res.render("forgetPass",{
+    pageTitle:'forget password',
+    path:"/login",
+    message:req.flash("success-msg"),
+    error:req.flash("error")
+  })
+}
