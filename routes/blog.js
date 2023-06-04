@@ -15,4 +15,21 @@ router.get("/",blogController.getIndex);
 //@rout get /post/id
 router.get("/post/:id", blogController.getSinglePost);
 
+
+//@desc contact us
+//@rout get /contact
+router.get("/contact", blogController.getContactPage);
+
+
+//@desc contact us
+//@rout post /contact
+router.post("/contact", blogController.handleContactPage);
+
+
+
+//@desc captcha
+//@rout get captcha
+router.get("/captcha.png", blogController.getCaptcha);
+
+
 module.exports = router;

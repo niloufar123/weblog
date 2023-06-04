@@ -1,0 +1,73 @@
+<%- include('./includes/navbar.ejs') %>
+<div class="container mt-5 pt-5">
+    <h2 class="text-center">Contact us</h2>
+    <div class="bg-light ">
+        <div class="w-25 text-center mx-auto">
+            <%- include("./includes/loginMessages.ejs") %>
+            <%- include('./includes/messages') -%>
+        </div>
+        <form class="mx-auto w-50" action="/contact" method="post">
+            <br>
+                <div class="form-group">
+                    <label class="col-md-3 control-label" for="name"
+                        >Name and Family</label
+                    >
+                    <div class="col-md-9">
+                        <input
+                            id="name"
+                            name="fullname"
+                            type="text"
+                            placeholder="Name and Family"
+                            class="form-control"
+                        />
+                    </div>
+                </div>
+            </br>
+                <div class="form-group">
+                  <label for="exampleInputEmail1">Email address</label>
+                  <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+                 
+                </div>
+            </br>
+            <!-- Message body -->
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="message"
+                    >your message</label
+                >
+                <div class="col-md-9">
+                    <textarea
+                        class="form-control"
+                        id="message"
+                        name="message"
+                        placeholder="please write your message and send it"
+                        rows="5"
+                    ></textarea>
+                </div>
+            </div>
+        </br>
+            <div class="form-group">
+                <div class="w-25 text-center col-md-9 ">
+                    <!-- <label class="col-md-3 control-label" for="message"
+                    >
+                    <a  class="/captcha"><img width="30px" src="/uploads/captcha.png" alt="captcha" /></a>
+                    </label> -->
+
+            </br>
+                    <img src="/captcha.png" alt="captcha" class="captcha" />
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="captcha"
+                        placeholder="captcha"
+                    />
+                </div>
+            </div>
+                <!-- Form actions -->
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+             
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
