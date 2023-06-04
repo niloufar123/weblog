@@ -142,12 +142,12 @@ exports.handleForgetPassword = async (req, res) => {
     })
   }
   const token=jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"1h"});
-  const resetLink=`http://localhost:3000/user/reset-password/${token}`
-  // sendEmail(user.email,user.fullname,
-  //   'forget password',`for change your password click on this link
-  // <a href="${resetLink}">reset password</a>
-  // `)
-  sendEmail(user.email,user.fullname,'forget password','We are delighted to have you as a bloger')
+  const resetLink=`http://localhost:3000/users/reset-password/${token}`
+  sendEmail(user.email,user.fullname,
+    'forget password',`to change your password click on this link
+  <a href="${resetLink}">reset password</a>
+  `)
+  // sendEmail(user.email,user.fullname,'forget password','We are delighted to have you as a bloger')
 
   req.flash("success-msg", " forget pass email has been sent")
 
@@ -157,4 +157,51 @@ exports.handleForgetPassword = async (req, res) => {
     message:req.flash("success-msg"),
     error:req.flash("error")
   })
+}
+
+exports.resetPassword=async(req,res)=>{
+  const token=req.params.token;
+
+  let decodedToken;
+  try{
+    decodedToken=await jwt.verify(token,process.env.JWT_SECRET)
+  }catch (err){
+    if(!decodedToken){
+      return res.redirect("/404")
+    }
+
+  }
+
+  res.render("resetPass",{
+    pageTitle:'change password',
+    path:"/login",
+    message:req.flash("success-msg"),
+    error:req.flash("error"),
+    userId:decodedToken.userId
+  })
+}
+
+exports.handleResetPassword=async(req,res)=>{
+  const {password,confirmPassword}=req.body;
+  if(password!=confirmPassword){
+    req.flash("error","password and confirmPass aren't equal")
+
+    res.render("resetPass",{
+      pageTitle:'change password',
+      path:"/login",
+      message:req.flash("success-msg"),
+      error:req.flash("error"),
+      userId:req.params.userId
+    })
+  }else{
+
+    const user=await User.findOne({_id:req.params.userId});
+    if(!user){
+      return res.redirect("/404")
+    }
+    user.password=password;
+    await user.save();
+    req.flash("success_msg","your password updated successfuly");
+    res.redirect("/users/login")
+  }
 }
