@@ -4,50 +4,17 @@ const passport = require("passport");
 const { sendEmail } = require("../utils/mailer");
 const jwt=require("jsonwebtoken")
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 
-exports.login = (req, res) => {
-  res.set(
-    "Cache-Control",
-    "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0"
-);
-  res.render("login", {
-    pageTitle: "login",
-    path: "/login",
-    message: req.flash("success_msg"),
-    error: req.flash("error"),
-  });
-};
+
 
 exports.handleLogin =async (req, res, next) => {
-  console.log(req.body["g-recaptcha-response"]);
-  if (!req.body["g-recaptcha-response"]) {
-    req.flash("error", "Captcha is required");
-    return res.redirect("/users/login");
-  }
-
-  const secretKey = process.env.CAPTCHA_SECRET;
-  
-  const verifyURL = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.body["g-recaptcha-response"]}
-    &remoteip=${req.connection.remoteAddress}`;
-  const response = await fetch(verifyURL, {
-	method: 'post',
-	headers: {Accept:'application/json',
-   'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'}
-});
-const data = await response.json();
-console.log('data',data)
-if(data.success){
-
+ 
   passport.authenticate("local", {
     failureRedirect: "/users/login",
     failureFlash: true,
   })(req, res, next);
-  }else{
-  req.flash("error","captcha authentication failed")
-  res.redirect("/users/login")
-}
+
 };
 
 exports.rememberMe = (req, res) => {
@@ -73,12 +40,7 @@ exports.logout = (req, res) => {
   });
 };
 
-exports.register = (req, res) => {
-  res.render("register", {
-    pageTitle: "Add user",
-    path: "/register",
-  });
-};
+
 
 exports.createUser = async (req, res) => {
   const errors = [];
@@ -127,14 +89,7 @@ exports.createUser = async (req, res) => {
     });
   }
 };
-exports.forgetPassword = async (req, res) => {
-  res.render("forgetPass",{
-    pageTitle:'forget password',
-    path:"/login",
-    message:req.flash("success-msg"),
-    error:req.flash("error")
-  })
-}
+
 
 exports.handleForgetPassword = async (req, res) => {
   const {email}=req.body;

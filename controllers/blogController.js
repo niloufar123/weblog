@@ -1,9 +1,6 @@
 const Yup=require('yup');
 
-const captchaPng=require("captchapng")
 const Blog = require("../models/Blog");
-const { formatDate } = require('../utils/formatDate');
-const { trunCate } = require('../utils/helpers');
 const { sendEmail } = require('../utils/mailer');
 const captchapng = require('captchapng');
 
@@ -65,16 +62,7 @@ exports.getSinglePost = async (req, res) => {
 
 }
 
-exports.getContactPage=(req,res)=>{
-    res.render("contact",{
-        pageTitle:"contactUs",
-        path:"/contact",
-        message:req.flash("success_msg"),
-        error:req.flash("error"),
-        errors:[]
 
-    })
-}
 
 exports.handleContactPage=async(req,res)=>{
     const errorArr=[]

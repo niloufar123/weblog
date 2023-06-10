@@ -3,7 +3,6 @@
 const path = require("path");
 
 const express = require("express");
-const layouts = require("express-ejs-layouts");
 const dotEnv = require("dotenv");
 const morgan = require("morgan");
 const passport=require("passport")
@@ -13,7 +12,6 @@ const dashRoutes = require("./routes/dashboard");
 const mongoos=require("mongoose");
 const debug=require("debug")("myWeblog")
 const fileUpload=require("express-fileupload")
-const winston=require("./config/winston")
 const bodyParser=require("body-parser")
 const flash=require("connect-flash");
 const session=require("express-session");
@@ -30,17 +28,7 @@ connectDB();
 require("./config/passport")
 
 const app = express();
-//loging
-if (process.env.NODE_ENV === "development") {
-  debug("Morgan Enabled")
-  app.use(morgan("combined",{stream:winston.stream}));
-}
 
-//view Engine
-app.use(layouts);
-app.set("view engine", "ejs");
-app.set("views", "views");
-app.set("layout", "./layouts/mainLayout");
 
 //body parser
 app.use(express.urlencoded({ extended: false }));
@@ -81,8 +69,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", blogRoutes);
 app.use("/dashboard", dashRoutes);
 app.use("/users", require("./routes/users"));
-//404 page
-app.use(require('./controllers/errorController').get404);
+
 
 const PORT = process.env.PORT || 5000;
 
