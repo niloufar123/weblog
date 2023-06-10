@@ -9,33 +9,21 @@ let CAPTCHA_NUM;
 
 
 exports.getIndex = async (req, res) => {
-    const page = +req.query.page || 1;
-    const postPerPage = 5;
+ 
     try {
         const numberOfPosts = await Blog.find({ status: "public" }).countDocuments();
 
         const posts = await Blog.find({ status: "public" })
             .sort({ createdAt: "desc" })
-            .skip((page - 1) * postPerPage)
-            .limit(postPerPage);
 
-        res.render("blog", {
-            pageTitle: " weblog",
-            path: "/",
-            posts,
-            formatDate,
-            trunCate,
+            res.status(200).json({
+                posts,total:numberOfPosts   
+            })
 
-            currentPage: page,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            hasNextPage: postPerPage * page < numberOfPosts,
-            hasPreviousPage: page > 1,
-            lastPage: Math.ceil(numberOfPosts / postPerPage),
-        })
+       
     } catch (err) {
         console.log(err)
-        res.render("errors/500");
+        res.status(400).json({error:err})
     }
 }
 
@@ -43,21 +31,13 @@ exports.getSinglePost = async (req, res) => {
     try {
         const post = await Blog.findOne({ _id: req.params.id }).populate("user")
 
-        if (!post) return res.redirect("errors/404")
+        if (!post) return res.status(404).json({message:"not Found"})
 
-        res.render("private/post", {
-            pageTitle: post.title,
-            path: "/dashboard/post",
-
-            post,
-            formatDate,
-
-
-        })
+        res.status(200).json({post})
 
     } catch (err) {
         console.log(err)
-        res.render("errors/500");
+        res.status(400).json({error:err})
     }
 
 }

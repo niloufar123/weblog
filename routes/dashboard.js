@@ -12,7 +12,7 @@ router.delete("/delete-post/:id", authenticated, admincontroller.Deletepost);
 
 //@desc handle post editpost
 //@rout POST /dashboard/edit-post
-router.post("/edit-post/:id", authenticated, admincontroller.editPost);
+router.put("/edit-post/:id", authenticated, admincontroller.editPost);
 
 
 //@desc handle post addpost
