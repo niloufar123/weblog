@@ -23,6 +23,10 @@ exports.getDashboard = async (req, res) => {
         const blogs = await Blog.find({ user: req.user.id })
             .skip((page - 1) * postPerPage)
             .limit(postPerPage)
+            res.set(
+                "Cache-Control",
+                "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0"
+            );
         res.render("private/blogs", {
             pageTitle: "admin ~ dashboard",
             path: "/dashboard",

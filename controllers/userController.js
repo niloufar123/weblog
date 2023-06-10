@@ -8,6 +8,10 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 
 
 exports.login = (req, res) => {
+  res.set(
+    "Cache-Control",
+    "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0"
+);
   res.render("login", {
     pageTitle: "login",
     path: "/login",
@@ -61,6 +65,10 @@ exports.logout = (req, res) => {
     //   return next(err);
     // }
     // req.flash("success_msg", "You have successfully logged out!");because session is null
+    res.set(
+      "Cache-Control",
+      "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0"
+  );
     res.redirect("/users/login");
   });
 };
