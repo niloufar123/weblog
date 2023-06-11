@@ -16,7 +16,8 @@ const bodyParser=require("body-parser")
 const flash=require("connect-flash");
 const session=require("express-session");
 const MongoStore=require("connect-mongo")
-
+const {errorHandler}=require("./middlewares/errors");
+const { setHeaders } = require("./middlewares/headers");
 
 //load config
 dotEnv.config({ path: "./config/config.env" });
@@ -34,7 +35,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json())
 
-
+app.use(setHeaders)
 //file Upload middleware
 app.use(fileUpload());
 
@@ -70,6 +71,8 @@ app.use("/", blogRoutes);
 app.use("/dashboard", dashRoutes);
 app.use("/users", require("./routes/users"));
 
+// error controller
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000;
 

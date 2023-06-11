@@ -8,7 +8,7 @@ const captchapng = require('captchapng');
 let CAPTCHA_NUM;
 
 
-exports.getIndex = async (req, res) => {
+exports.getIndex = async (req, res,next) => {
  
     try {
         const numberOfPosts = await Blog.find({ status: "public" }).countDocuments();
@@ -20,33 +20,42 @@ exports.getIndex = async (req, res) => {
                 posts,total:numberOfPosts   
             })
 
+        if(!posts){
+            const error=new Error("there is no post in our database")
+            error.statusCode=404;
+            throw error;
+        }
+
        
     } catch (err) {
-        console.log(err)
-        res.status(400).json({error:err})
+        next(err)
     }
 }
 
-exports.getSinglePost = async (req, res) => {
+exports.getSinglePost = async (req, res,next) => {
     try {
         const post = await Blog.findOne({ _id: req.params.id }).populate("user")
 
-        if (!post) return res.status(404).json({message:"not Found"})
-
+        
+        if(!post){
+            const error=new Error("there is no post with this id")
+            error.statusCode=404;
+            throw error;
+        }
         res.status(200).json({post})
 
     } catch (err) {
-        console.log(err)
-        res.status(400).json({error:err})
+       
+        next(err)
     }
 
 }
 
 
 
-exports.handleContactPage=async(req,res)=>{
+exports.handleContactPage=async(req,res,next)=>{
     const errorArr=[]
-    const {fullname,email,message,captcha}=req.body;
+    const {fullname,email,message}=req.body;
 
     const schema=Yup.object().shape({
         fullname:Yup.string()
@@ -62,31 +71,11 @@ exports.handleContactPage=async(req,res)=>{
             await schema.validate(req.body,{abortEarly:false})
             // schema.validate(req.body, { abortEarly: false });
 
-            //captcha validation
-            if(parseInt(captcha)==CAPTCHA_NUM){
+           
 
                 sendEmail(email,fullname,"weblog message",`${message} user email ${email}`)
-                req.flash("success_msg","your message successfuly sent")
+                res.status(200).json({message:"your message submited"})
      
-                return res.render("contact",{
-                    pageTitle:"contactUs",
-                    path:"/contact",
-                    message:req.flash("success_msg"),
-                    error:req.flash("error"),
-                    errors:errorArr
-            
-                })
-            }
-
-            req.flash("error","captcha is wrong")
-            return res.render("contact",{
-                pageTitle:"contactUs",
-                path:"/contact",
-                message:req.flash("success_msg"),
-                error:req.flash("error"),
-                errors:errorArr
-        
-            })
         } catch (err ) {
             // console.log('err',err.inner)
             err.inner.forEach((e) => {
@@ -96,15 +85,10 @@ exports.handleContactPage=async(req,res)=>{
                     message: e.message,
                 });
             })
-            res.render("contact",{
-                pageTitle:"contactUs",
-                path:"/contact",
-                message:req.flash("success_msg"),
-                error:req.flash("error"),
-                errors:errorArr
-        
-            })
-            
+          const error=new Error("error in validate")
+          error.statusCode=422;
+          error.data=errorArr
+          next(error)
         }
     
     
