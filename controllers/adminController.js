@@ -115,6 +115,7 @@ exports.createPost = async (req, res) => {
         await Blog.create({ ...req.body, user: req.user.id, thumbnail: fileName })
 
         console.log('post body', req.body)
+        // res.status(200).json()
         res.redirect("/dashboard")
     } catch (err) {
         console.log(err)
