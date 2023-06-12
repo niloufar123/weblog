@@ -9,6 +9,7 @@ const blogRoutes = require("./routes/blog");
 const dashRoutes = require("./routes/dashboard")
 const fileUpload=require("express-fileupload")
 const dotEnv = require("dotenv");
+const { errorHandler } = require("./middlewares/errors");
 
 //* Load Config
 dotEnv.config({ path: "./config/config.env" });

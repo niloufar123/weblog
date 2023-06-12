@@ -3,7 +3,6 @@ const Yup=require('yup');
 const Blog = require("../models/Blog");
 const { sendEmail } = require('../utils/mailer');
 const captchapng = require('captchapng');
-const { get500 } = require('./errorController')
 
 
 let CAPTCHA_NUM;
