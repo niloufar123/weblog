@@ -16,9 +16,7 @@ router.get("/",blogController.getIndex);
 router.get("/post/:id", blogController.getSinglePost);
 
 
-//@desc contact us
-//@rout get /contact
-router.get("/contact", blogController.getContactPage);
+
 
 
 //@desc contact us

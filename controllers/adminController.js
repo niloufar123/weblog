@@ -5,79 +5,13 @@ const appRoot = require("app-root-path")
 const shortId = require("shortid");
 const fs = require('fs')
 
-const { get500 } = require('./errorController')
 const sharp = require("sharp");
 const RootPath = require("app-root-path");
 
-exports.getDashboard = async (req, res) => {
-
-    const page = +req.query.page || 1;
-    const postPerPage = 2;
-
-    console.log('page===>', page, typeof (page))
-
-    try {
-        const numberOfPosts = await Blog.find({ user: req.user._id }).countDocuments();
-        const blogs = await Blog.find({ user: req.user.id })
-            .skip((page - 1) * postPerPage)
-            .limit(postPerPage)
-        res.render("private/blogs", {
-            pageTitle: "admin ~ dashboard",
-            path: "/dashboard",
-            layout: "./layouts/dashLayout",
-            fullname: req.user.fullname,
-            blogs,
 
 
-            currentPage: page,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            hasNextPage: postPerPage * page < numberOfPosts,
-            hasPreviousPage: page > 1,
-            lastPage: Math.ceil(numberOfPosts / postPerPage),
-
-        })
-    } catch (error) {
-        console.log(error)
-        get500(req,res)
-    }
 
 
-}
-
-exports.getAddpost = (req, res) => {
-
-    res.render("private/addPost", {
-        pageTitle: "add new post",
-        path: "/dashboard/add-post",
-        layout: "./layouts/dashLayout",
-        fullname: req.user.fullname
-
-    })
-}
-exports.getEditpost = async (req, res) => {
-    const post = await Blog.findOne({
-        _id: req.params.id
-    })
-
-    if (!post) {
-        return res.redirect("/404")
-    }
-    if (post.user.toString() !== req.user.id) {
-        return res.redirect("/dashboard")
-    }
-    else {
-        res.render("private/editPost", {
-            pageTitle: "Edit post",
-            path: "/dashboard/edit-post",
-            layout: "./layouts/dashLayout",
-            fullname: req.user.fullname,
-            post
-
-        })
-    }
-
-}
 exports.Deletepost = async (req, res) => {
     try {
 
@@ -180,6 +114,7 @@ exports.createPost = async (req, res) => {
         await Blog.create({ ...req.body, user: req.user.id, thumbnail: fileName })
 
         console.log('post body', req.body)
+        // res.status(200).json()
         res.redirect("/dashboard")
     } catch (err) {
         console.log(err)
@@ -226,10 +161,10 @@ exports.uploadImage = (req, res) => {
             }
             res.status(400).send(err);
         } else {
-            if (req.file) {
-                const fileName = `${req.file.originalname}`
+            if (req.fileS) {
+                const fileName = `${uuid()}_${req.files.image.name}`
 
-                await sharp(req.file.buffer).jpeg({
+                await sharp(req.files.image.data).jpeg({
                     quality: 60
                 })
                     .toFile(`./public/uploads/${fileName}`)
