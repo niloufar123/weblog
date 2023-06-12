@@ -1,7 +1,6 @@
 const multer = require("multer");
 const { fileFilter } = require('../utils/multer')
 const Blog = require("../models/Blog");
-const { formatDate } = require("../utils/formatDate");
 const appRoot = require("app-root-path")
 const shortId = require("shortid");
 const fs = require('fs')
@@ -9,7 +8,6 @@ const fs = require('fs')
 const { get500 } = require('./errorController')
 const sharp = require("sharp");
 const RootPath = require("app-root-path");
-const uuid = require("uuid").v4;
 
 exports.getDashboard = async (req, res) => {
 
@@ -29,7 +27,6 @@ exports.getDashboard = async (req, res) => {
             layout: "./layouts/dashLayout",
             fullname: req.user.fullname,
             blogs,
-            formatDate,
 
 
             currentPage: page,
@@ -42,7 +39,7 @@ exports.getDashboard = async (req, res) => {
         })
     } catch (error) {
         console.log(error)
-        // get500(req,res)
+        get500(req,res)
     }
 
 
@@ -64,7 +61,7 @@ exports.getEditpost = async (req, res) => {
     })
 
     if (!post) {
-        return res.redirect("errors/404")
+        return res.redirect("/404")
     }
     if (post.user.toString() !== req.user.id) {
         return res.redirect("/dashboard")
@@ -88,7 +85,7 @@ exports.Deletepost = async (req, res) => {
         console.log(result)
         res.redirect("/dashboard")
     } catch (err) {
-        res.render("errors/500s")
+        get500(req,res)
     }
 }
 exports.editPost = async (req, res) => {
@@ -111,7 +108,7 @@ exports.editPost = async (req, res) => {
 
 
         if (!post) {
-            return res.redirect("errors/404")
+            return res.redirect("/404")
         } else
             if (post.user.toString() != req.user._id) {
                 console.log('posd11111', req.body)
@@ -186,7 +183,7 @@ exports.createPost = async (req, res) => {
         res.redirect("/dashboard")
     } catch (err) {
         console.log(err)
-        // get500(req,res)
+        get500(req,res)
         err.inner.forEach((e) => {
             errors.push({
                 name: e.path,
@@ -230,7 +227,7 @@ exports.uploadImage = (req, res) => {
             res.status(400).send(err);
         } else {
             if (req.file) {
-                const fileName = `${uuid()}_${req.file.originalname}`
+                const fileName = `${req.file.originalname}`
 
                 await sharp(req.file.buffer).jpeg({
                     quality: 60
@@ -238,7 +235,7 @@ exports.uploadImage = (req, res) => {
                     .toFile(`./public/uploads/${fileName}`)
                     .catch(err => console.log(err))
 
-                res.status(200).send(`http://localhost:3000/uploads/${fileName}`)
+                res.status(200).send(`https://nilobang.ir/uploads/${fileName}`)
             } else {
 
                 res.send("please select an image")
@@ -247,3 +244,39 @@ exports.uploadImage = (req, res) => {
         }
     })
 };
+
+
+exports.handleDashSearch=async(req,res)=>{
+    const page = +req.query.page || 1;
+    const postPerPage = 2;
+
+    console.log('page===>', req.body)
+
+    try {
+        const numberOfPosts = await Blog.find({ user: req.user._id,$text:{$search:req.body.search} }).countDocuments();
+        const blogs = await Blog.find({ user: req.user.id ,$text:{$search:req.body.search}})
+            .skip((page - 1) * postPerPage)
+            .limit(postPerPage)
+        res.render("private/blogs", {
+            pageTitle: "admin ~ dashboard",
+            path: "/dashboard",
+            layout: "./layouts/dashLayout",
+            fullname: req.user.fullname,
+            blogs,
+
+
+            currentPage: page,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            hasNextPage: postPerPage * page < numberOfPosts,
+            hasPreviousPage: page > 1,
+            lastPage: Math.ceil(numberOfPosts / postPerPage),
+
+        })
+    } catch (error) {
+        console.log(error)
+        get500(req,res)
+    }
+
+   
+}

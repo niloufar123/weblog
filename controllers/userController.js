@@ -1,6 +1,4 @@
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const passport = require("passport");
 const { sendEmail } = require("../utils/mailer");
 const jwt=require("jsonwebtoken")
 
@@ -17,43 +15,15 @@ exports.login = (req, res) => {
 };
 
 exports.handleLogin =async (req, res, next) => {
-  console.log(req.body["g-recaptcha-response"]);
-  if (!req.body["g-recaptcha-response"]) {
-    req.flash("error", "Captcha is required");
-    return res.redirect("/users/login");
-  }
 
-  const secretKey = process.env.CAPTCHA_SECRET;
+
+  // passport.authenticate("local", {
+  //   failureRedirect: "/users/login",
+  //   failureFlash: true,
+  // })(req, res, next);
   
-  const verifyURL = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.body["g-recaptcha-response"]}
-    &remoteip=${req.connection.remoteAddress}`;
-  const response = await fetch(verifyURL, {
-	method: 'post',
-	headers: {Accept:'application/json',
-   'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'}
-});
-const data = await response.json();
-console.log('data',data)
-if(data.success){
-
-  passport.authenticate("local", {
-    failureRedirect: "/users/login",
-    failureFlash: true,
-  })(req, res, next);
-  }else{
-  req.flash("error","captcha authentication failed")
-  res.redirect("/users/login")
-}
 };
 
-exports.rememberMe = (req, res) => {
-  if (req.body.remember) {
-    req.session.cookie.originalMaxAge = 24 * 60 * 60 * 1000; // one day
-  } else {
-    req.session.cookie.expire = null;
-  }
-  res.redirect("/dashboard");
-};
 exports.logout = (req, res) => {
   req.session=null
   req.logout(function (err) {
@@ -142,7 +112,7 @@ exports.handleForgetPassword = async (req, res) => {
     })
   }
   const token=jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"1h"});
-  const resetLink=`http://localhost:3000/users/reset-password/${token}`
+  const resetLink=`https://nilobang.ir/ users/reset-password/${token}`
   sendEmail(user.email,user.fullname,
     'forget password',`to change your password click on this link
   <a href="${resetLink}">reset password</a>

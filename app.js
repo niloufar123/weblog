@@ -3,44 +3,21 @@
 const path = require("path");
 
 const express = require("express");
-const layouts = require("express-ejs-layouts");
-const dotEnv = require("dotenv");
-const morgan = require("morgan");
-const passport=require("passport")
+
 const connectDB = require("./config/db");
 const blogRoutes = require("./routes/blog");
-const dashRoutes = require("./routes/dashboard");
-const mongoos=require("mongoose");
-const debug=require("debug")("myWeblog")
+const dashRoutes = require("./routes/dashboard")
 const fileUpload=require("express-fileupload")
-const winston=require("./config/winston")
-const bodyParser=require("body-parser")
-const flash=require("connect-flash");
-const session=require("express-session");
-const MongoStore=require("connect-mongo")
+const dotEnv = require("dotenv");
 
-
-//load config
+//* Load Config
 dotEnv.config({ path: "./config/config.env" });
 
 //data Base connection
 connectDB();
 
-//passport configuration
-require("./config/passport")
 
 const app = express();
-//loging
-if (process.env.NODE_ENV === "development") {
-  debug("Morgan Enabled")
-  app.use(morgan("combined",{stream:winston.stream}));
-}
-
-//view Engine
-app.use(layouts);
-app.set("view engine", "ejs");
-app.set("views", "views");
-app.set("layout", "./layouts/mainLayout");
 
 //body parser
 app.use(express.urlencoded({ extended: false }));
@@ -50,26 +27,6 @@ app.use(express.json())
 //file Upload middleware
 app.use(fileUpload());
 
-
-//sessions
-app.use(session({
-  secret:process.env.SESSION_SECRET,
-  resave:false,
-  saveUninitialized:false,
-  unset: 'destroy',
-  store: MongoStore.create(
-     mongoos.connection )
-
-}))
-
-
-
-//passport
-app.use(passport.initialize());
-app.use(passport.session())
-
-//Flash
-app.use(flash())//req.flash
 
 //static folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -81,11 +38,12 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", blogRoutes);
 app.use("/dashboard", dashRoutes);
 app.use("/users", require("./routes/users"));
-//404 page
-app.use(require('./controllers/errorController').get404);
+
+//* Error Controller
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () =>
-  console.log(`Server running in ${process.env.NODE_ENV} on port ${PORT} ==> ${mongoos}`)
+  console.log(`Server running in ${process.env.NODE_ENV} on port`)
 );

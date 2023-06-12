@@ -34,6 +34,8 @@ const blogSchema=new mongoos.Schema({
     }
 })
 
+blogSchema.index({title:"text"})
+
 blogSchema.statics.postValidation=function (body) {
     console.log('schema blody: ',body)
     return schema.validate(body,{abortEarly:false})

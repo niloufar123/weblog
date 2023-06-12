@@ -38,4 +38,8 @@ router.post("/add-post",authenticated,  admincontroller.createPost);
 //@rout POST /dashboard/image-upload
 router.post("/image-upload",  admincontroller.uploadImage);
 
+//@desc handle post search
+//@rout POST /dashboard/search
+router.post("/search",  admincontroller.handleDashSearch);
+
 module.exports = router;
