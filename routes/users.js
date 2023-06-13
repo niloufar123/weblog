@@ -28,14 +28,11 @@ router.post("/register",userController.createUser);
 router.post("/forget-password",userController.handleForgetPassword);
 
 
-//  @desc   reset pass   
-//  @route  GET /users/reset-password
-router.get("/reset-password/:token",userController.resetPassword);
 
 
 //  @desc   reset pass   
-//  @route  Post /users/reset-password
-router.post("/reset-password/:userId",userController.handleResetPassword);
+//  @route  Post /users/reset-password/:token
+router.post("/reset-password/:token",userController.handleResetPassword);
 
 
 
