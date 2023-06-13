@@ -2,7 +2,6 @@ const { Router } = require("express");
 const yup=require('yup')
 
 const userController=require('../controllers/userController');
-const { authenticated } = require("../middlewares/auth");
 
 
 const router = new Router();

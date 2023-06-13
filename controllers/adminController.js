@@ -7,24 +7,35 @@ const fs = require('fs')
 
 const sharp = require("sharp");
 const RootPath = require("app-root-path");
+const { error } = require("console");
 
 
 
 
 
-exports.Deletepost = async (req, res) => {
+exports.Deletepost = async (req, res,next) => {
     try {
 
-        const result = await Blog.findByIdAndRemove(req.params.id);//delete doen't show item deleted
-        console.log(result)
-        res.redirect("/dashboard")
+         const post=await Blog.findByIdAndRemove(req.params.id);//delete doen't show item deleted
+        const filePath=`${appRoot}/public/uploads/thumbnails/${post.thumbnail}`
+        
+        fs.unlink(filePath, async (err) => {
+            if (err){
+                const error = new Error({ message: "There is an error in the cleanup" })
+                error.statusCode = 400;
+                throw error
+                }
+            else{
+
+                res.status(200).json({message:"post is deleted successfuly"})
+            }
+           
+        })
     } catch (err) {
-        get500(req,res)
+        next(err)
     }
 }
-exports.editPost = async (req, res) => {
-    let errors = [];
-
+exports.editPost = async (req, res, next) => {
 
     const thumbnail = req.files ? req.files.thumbnail : {}
     const fileName = `${shortId.generate()}_${thumbnail.name}`
@@ -33,7 +44,7 @@ exports.editPost = async (req, res) => {
 
 
     const post = await Blog.findOne({ _id: req.params.id })
-    const { title, status, body } = req.body;
+
     try {
         if (thumbnail.name) await Blog.postValidation({ ...req.body, thumbnail });
         else await Blog.postValidation({ ...req.body, thumbnail: { name: 'placeholder', size: 0, mimetype: 'image/jpeg' } });
@@ -42,12 +53,15 @@ exports.editPost = async (req, res) => {
 
 
         if (!post) {
-            return res.redirect("/404")
-        } else
-            if (post.user.toString() != req.user._id) {
-                console.log('posd11111', req.body)
 
-                return res.redirect("/dashboard")
+            const error = new Error({ message: "this post doesn't exist" })
+            error.statusCode = 404;
+            throw error
+        } else
+            if (post.user.toString() != req.userId) {
+                const error = new Error({ message: "You do not have permission to edit the post" })
+                error.statusCode = 401;
+                throw error
 
             }
             else {
@@ -70,39 +84,23 @@ exports.editPost = async (req, res) => {
                 post.title = title;
                 post.body = body;
                 post.status = status;
-                post.thumbnail = thumbnail.name? fileName : post.thumbnail;
+                post.thumbnail = thumbnail.name ? fileName : post.thumbnail;
                 await post.save();
-                res.redirect("/dashboard")
+                res.status(200).json({message:"your post is edited"})
 
             }
 
     } catch (err) {
-        err.inner.forEach((e) => {
-            errors.push({
-                name: e.path,
-                message: e.message,
-            });
-        })
-
-        res.render("private/editPost", {
-            pageTitle: "edit post",
-            path: "/dashboard/edit-post",
-            layout: "./layouts/dashLayout",
-            fullname: 'req.user.fullname',
-            errors: errors,
-            post
-
-        })
+        next(err)
     }
 }
 
-exports.createPost = async (req, res) => {
-    let errors = [];
+exports.createPost = async (req, res, next) => {
+
     const thumbnail = req.files ? req.files.thumbnail : {}
     const fileName = `${shortId.generate()}_${thumbnail.name}`
     const uploadPath = `${appRoot}/public/uploads/thumbnails/${fileName}`
 
-    console.log(thumbnail)
     try {
         req.body = { ...req.body, thumbnail }
         await Blog.postValidation(req.body);
@@ -110,44 +108,21 @@ exports.createPost = async (req, res) => {
             .jpeg({ quality: 60 })
             .toFile(uploadPath)
             .catch(err => console.log(err))
+        await Blog.create({ ...req.body, user: req.userId, thumbnail: fileName })
+        res.status(200).json({ message: "new post is created" })
 
-        await Blog.create({ ...req.body, user: req.user.id, thumbnail: fileName })
-
-        console.log('post body', req.body)
-        // res.status(200).json()
-        res.redirect("/dashboard")
     } catch (err) {
-        console.log(err)
-        get500(req,res)
-        err.inner.forEach((e) => {
-            errors.push({
-                name: e.path,
-                message: e.message,
-            });
-        })
-
-        res.render("private/addPost", {
-            pageTitle: "add new post",
-            path: "/dashboard/add-post",
-            layout: "./layouts/dashLayout",
-            fullname: 'req.user.fullname',
-            errors: errors
-
-        })
+        next(err)
     }
 }
 
 
 exports.uploadImage = (req, res) => {
-    // let fileName = `${uuid()}.jpg`;
-
-
+    
 
     const upload = multer(
         {
             limits: { fileSize: 40000000000 },
-            //  dest: 'uploads/',
-            //  storage:storage,
             fileFilter: fileFilter
         }).single("image")
 
@@ -156,13 +131,14 @@ exports.uploadImage = (req, res) => {
         if (err) {
             if (err.code == "LIMIT_FILE_SIZE") {
                 return res
-                    .status(400)
-                    .send("file value should be lower than 4MG")
+                    .status(422)
+                    .json({error:"file value should be lower than 4MG"})
             }
-            res.status(400).send(err);
+            console.log('err',err)
+            res.status(400).json({error:err});
         } else {
-            if (req.fileS) {
-                const fileName = `${uuid()}_${req.files.image.name}`
+            if (req.files) {
+                const fileName = `${shortId.generate()}_${req.files.image.name}`
 
                 await sharp(req.files.image.data).jpeg({
                     quality: 60
@@ -170,10 +146,10 @@ exports.uploadImage = (req, res) => {
                     .toFile(`./public/uploads/${fileName}`)
                     .catch(err => console.log(err))
 
-                res.status(200).send(`https://nilobang.ir/uploads/${fileName}`)
+                res.status(200).json({message:`http://localhost:3000/uploads/${fileName}`})
             } else {
 
-                res.send("please select an image")
+                res.status(400).json({error:"please select an image"})
 
             }
         }
@@ -181,15 +157,15 @@ exports.uploadImage = (req, res) => {
 };
 
 
-exports.handleDashSearch=async(req,res)=>{
+exports.handleDashSearch = async (req, res) => {
     const page = +req.query.page || 1;
     const postPerPage = 2;
 
     console.log('page===>', req.body)
 
     try {
-        const numberOfPosts = await Blog.find({ user: req.user._id,$text:{$search:req.body.search} }).countDocuments();
-        const blogs = await Blog.find({ user: req.user.id ,$text:{$search:req.body.search}})
+        const numberOfPosts = await Blog.find({ user: req.user._id, $text: { $search: req.body.search } }).countDocuments();
+        const blogs = await Blog.find({ user: req.user.id, $text: { $search: req.body.search } })
             .skip((page - 1) * postPerPage)
             .limit(postPerPage)
         res.render("private/blogs", {
@@ -210,8 +186,8 @@ exports.handleDashSearch=async(req,res)=>{
         })
     } catch (error) {
         console.log(error)
-        get500(req,res)
+        get500(req, res)
     }
 
-   
+
 }
